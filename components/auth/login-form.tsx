@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AlertCircle, Lock, Mail, User } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { authApi } from '@/lib/api'
 
 interface LoginFormProps {
   onLogin: () => void
@@ -30,10 +31,19 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       return
     }
 
-    setTimeout(() => {
+    try {
+      const response = await authApi.login(email, password)
+      if (response.token) {
+        onLogin()
+      } else {
+        setError(response.error || 'Error al iniciar sesión')
+      }
+    } catch (err) {
+      setError('Error de conexión. Intenta más tarde.')
+      console.log('[v0] Login error:', err)
+    } finally {
       setIsLoading(false)
-      onLogin()
-    }, 800)
+    }
   }
 
   const handleRegister = async () => {
@@ -46,10 +56,19 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       return
     }
 
-    setTimeout(() => {
+    try {
+      const response = await authApi.register(name, email, password)
+      if (response.token) {
+        onLogin()
+      } else {
+        setError(response.error || 'Error al registrarse')
+      }
+    } catch (err) {
+      setError('Error de conexión. Intenta más tarde.')
+      console.log('[v0] Register error:', err)
+    } finally {
       setIsLoading(false)
-      onLogin()
-    }, 800)
+    }
   }
 
   return (
@@ -94,6 +113,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-input border-border text-foreground"
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -106,6 +126,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="bg-input border-border text-foreground"
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -135,6 +156,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="bg-input border-border text-foreground"
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -147,6 +169,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-input border-border text-foreground"
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -159,6 +182,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="bg-input border-border text-foreground"
+                    disabled={isLoading}
                   />
                 </div>
 

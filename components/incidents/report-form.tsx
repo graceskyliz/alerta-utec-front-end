@@ -6,8 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AlertCircle, MapPin, FileText, CheckCircle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { studentIncidentsApi } from '@/lib/api'
 
-export function ReportForm() {
+interface ReportFormProps {
+  onSuccess?: () => void
+}
+
+export function ReportForm({ onSuccess }: ReportFormProps) {
   const [formData, setFormData] = useState({
     type: 'seguridad',
     location: '',
@@ -16,20 +22,40 @@ export function ReportForm() {
   })
   const [submitted, setSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [incidentId, setIncidentId] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError('')
 
-    // Simulación de envío
-    setTimeout(() => {
+    try {
+      const response = await studentIncidentsApi.create({
+        type: formData.type,
+        location: formData.location,
+        description: formData.description,
+        urgency: formData.urgency,
+      })
+
+      if (response.data) {
+        setIncidentId(response.data.id)
+        setSubmitted(true)
+        onSuccess?.()
+        
+        setTimeout(() => {
+          setSubmitted(false)
+          setFormData({ type: 'seguridad', location: '', description: '', urgency: 'media' })
+        }, 3000)
+      } else {
+        setError(response.error || 'Error al reportar incidente')
+      }
+    } catch (err) {
+      setError('Error de conexión. Intenta más tarde.')
+      console.log('[v0] Submit error:', err)
+    } finally {
       setIsLoading(false)
-      setSubmitted(true)
-      setTimeout(() => {
-        setSubmitted(false)
-        setFormData({ type: 'seguridad', location: '', description: '', urgency: 'media' })
-      }, 3000)
-    }, 1000)
+    }
   }
 
   if (submitted) {
@@ -45,7 +71,7 @@ export function ReportForm() {
           <p className="text-muted-foreground">
             Tu reporte ha sido enviado correctamente. Las autoridades serán notificadas inmediatamente.
           </p>
-          <p className="text-sm text-muted-foreground">ID de reporte: <span className="font-mono text-primary">#ALERT-2024-0042</span></p>
+          <p className="text-sm text-muted-foreground">ID de reporte: <span className="font-mono text-primary">#{incidentId}</span></p>
         </CardContent>
       </Card>
     )
@@ -62,6 +88,13 @@ export function ReportForm() {
       </CardHeader>
 
       <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Type */}
           <div className="space-y-2">
@@ -71,6 +104,7 @@ export function ReportForm() {
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value })}
               className="w-full px-3 py-2 bg-input border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              disabled={isLoading}
             >
               <option value="seguridad">🔒 Seguridad</option>
               <option value="infraestructura">🏗️ Infraestructura</option>
@@ -90,6 +124,7 @@ export function ReportForm() {
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 className="bg-input border-border text-foreground pl-10"
+                disabled={isLoading}
                 required
               />
             </div>
@@ -105,6 +140,7 @@ export function ReportForm() {
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={5}
               className="w-full px-3 py-2 bg-input border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              disabled={isLoading}
               required
             />
           </div>
@@ -117,6 +153,7 @@ export function ReportForm() {
               value={formData.urgency}
               onChange={(e) => setFormData({ ...formData, urgency: e.target.value })}
               className="w-full px-3 py-2 bg-input border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              disabled={isLoading}
             >
               <option value="baja">🟢 Baja</option>
               <option value="media">🟡 Media</option>

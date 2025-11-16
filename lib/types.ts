@@ -8,8 +8,8 @@ export interface Incident {
   urgency: 'baja' | 'media' | 'alta' | 'crítica'
   status: 'pendiente' | 'en_atención' | 'resuelto'
   reporterId: string
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string | Date
+  updatedAt: string | Date
   assignedTo?: string
   notes?: string
 }
@@ -19,7 +19,7 @@ export interface User {
   name: string
   email: string
   role: UserRole
-  createdAt: Date
+  createdAt: string | Date
 }
 
 export interface Notification {
@@ -27,5 +27,5 @@ export interface Notification {
   message: string
   type: 'info' | 'warning' | 'error' | 'success'
   read: boolean
-  createdAt: Date
+  createdAt: string | Date
 }
