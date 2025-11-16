@@ -4,23 +4,19 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ReportForm } from '@/components/incidents/report-form'
 import { IncidentsList } from '@/components/incidents/incidents-list'
-import { AdminPanel } from '@/components/admin/admin-panel'
 import { NotificationCenter } from '@/components/notifications/notification-center'
-import { UserRole } from '@/lib/types'
-import { LogOut, Plus, BarChart3, Bell } from 'lucide-react'
+import { LogOut, Plus, CheckCircle2, Bell } from 'lucide-react'
 
 interface DashboardProps {
-  role: UserRole
   onLogout: () => void
 }
 
-export function Dashboard({ role, onLogout }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'reportes' | 'admin' | 'seguimiento'>('reportes')
+export function Dashboard({ onLogout }: DashboardProps) {
+  const [activeTab, setActiveTab] = useState<'reportar' | 'seguimiento'>('reportar')
   const [showNotifications, setShowNotifications] = useState(false)
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -29,7 +25,7 @@ export function Dashboard({ role, onLogout }: DashboardProps) {
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">AlertaUTEC</h1>
-              <p className="text-xs text-muted-foreground capitalize">{role}</p>
+              <p className="text-xs text-muted-foreground">Reporta incidentes de forma segura</p>
             </div>
           </div>
 
@@ -54,19 +50,16 @@ export function Dashboard({ role, onLogout }: DashboardProps) {
         </div>
       </header>
 
-      {/* Notifications */}
       {showNotifications && (
         <NotificationCenter />
       )}
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto p-4 space-y-6">
-        {/* Tabs */}
         <div className="flex gap-2 border-b border-border">
           <button
-            onClick={() => setActiveTab('reportes')}
+            onClick={() => setActiveTab('reportar')}
             className={`px-4 py-2 font-medium transition-colors ${
-              activeTab === 'reportes'
+              activeTab === 'reportar'
                 ? 'text-primary border-b-2 border-primary'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
@@ -74,20 +67,6 @@ export function Dashboard({ role, onLogout }: DashboardProps) {
             <Plus className="w-4 h-4 inline mr-2" />
             Reportar Incidente
           </button>
-
-          {(role === 'administrativo' || role === 'autoridad') && (
-            <button
-              onClick={() => setActiveTab('admin')}
-              className={`px-4 py-2 font-medium transition-colors ${
-                activeTab === 'admin'
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <BarChart3 className="w-4 h-4 inline mr-2" />
-              Panel de Control
-            </button>
-          )}
 
           <button
             onClick={() => setActiveTab('seguimiento')}
@@ -97,13 +76,12 @@ export function Dashboard({ role, onLogout }: DashboardProps) {
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
+            <CheckCircle2 className="w-4 h-4 inline mr-2" />
             Mis Reportes
           </button>
         </div>
 
-        {/* Content */}
-        {activeTab === 'reportes' && <ReportForm />}
-        {activeTab === 'admin' && (role === 'administrativo' || role === 'autoridad') && <AdminPanel role={role} />}
+        {activeTab === 'reportar' && <ReportForm />}
         {activeTab === 'seguimiento' && <IncidentsList />}
       </main>
     </div>

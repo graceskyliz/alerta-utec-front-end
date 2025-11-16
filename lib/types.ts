@@ -1,4 +1,4 @@
-export type UserRole = 'estudiante' | 'administrativo' | 'autoridad'
+export type UserRole = 'estudiante'
 
 export interface Incident {
   id: string
